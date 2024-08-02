@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat App</title>
+    <style>
+        #chatContainer {
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            width: 50%;
+            margin: auto;
+        }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #inputContainer {
+            display: flex;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+        }
+        #sendButton {
+            padding: 10px;
+        }
+    </style>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getDatabase, ref, onChildAdded, push } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCCscX2mNTuses7yf_uE7yVoW3nuquiZgE",
+            authDomain: "video-8122e.firebaseapp.com",
+            databaseURL: "https://video-8122e-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "video-8122e",
+            storageBucket: "video-8122e.appspot.com",
+            messagingSenderId: "624895425433",
+            appId: "1:624895425433:web:92bc0438715fc495d63108",
+            measurementId: "G-CYR4NZJC0T"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Elements
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Send message
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            if (message.trim() !== "") {
+                push(ref(database, 'messages'), {
+                    text: message,
+                    timestamp: Date.now()
+                });
+                messageInput.value = "";
+            }
+        });
+
+        // Display new messages
+        onChildAdded(ref(database, 'messages'), (snapshot) => {
+            const data = snapshot.val();
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `${new Date(data.timestamp).toLocaleTimeString()}: ${data.text}`;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    </script>
+</head>
+<body>
+    <h1>Chat Room</h1>
+    <div id="chatContainer">
+        <div id="messages"></div>
+        <div id="inputContainer">
+            <input type="text" id="messageInput" placeholder="Type a message..."/>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+</body>
+</html>
